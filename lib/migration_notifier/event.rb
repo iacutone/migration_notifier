@@ -1,13 +1,5 @@
 module MigrationNotifier
-  # An event caused by a change on the filesystem.
-  # Each {Watcher} can fire many events,
-  # which are passed to that watcher's callback.
   class Event
-    # A list of other events that are related to this one.
-    # Currently, this is only used for files that are moved within the same directory:
-    # the `:moved_from` and the `:moved_to` events will be related.
-    #
-    # @return [Array<Event>]
     attr_reader :related
 
     # The name of the file that the event occurred on.
@@ -26,43 +18,14 @@ module MigrationNotifier
     #
     # @return [String]
     attr_reader :name
-
-    # The {Notifier} that fired this event.
-    #
-    # @return [Notifier]
     attr_reader :notifier
-
-    # An integer specifying that this event is related to some other event,
-    # which will have the same cookie.
-    #
-    # Currently, this is only used for files that are moved within the same directory.
-    # Both the `:moved_from` and the `:moved_to` events will have the same cookie.
-    #
-    # @private
-    # @return [Fixnum]
     attr_reader :cookie
-
-    # The {Watcher#id id} of the {Watcher} that fired this event.
-    #
-    # @private
-    # @return [Fixnum]
     attr_reader :watcher_id
 
-    # Returns the {Watcher} that fired this event.
-    #
-    # @return [Watcher]
     def watcher
       @watcher ||= @notifier.watchers[@watcher_id]
     end
 
-    # The absolute path of the file that the event occurred on.
-    #
-    # This is actually only as absolute as the path passed to the {Watcher}
-    # that created this event.
-    # However, it is relative to the working directory,
-    # assuming that hasn't changed since the watcher started.
-    #
-    # @return [String]
     def absolute_name
       return watcher.path if name.empty?
       return File.join(watcher.path, name)
